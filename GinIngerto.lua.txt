@@ -1,0 +1,241 @@
+-- Gin Ingerto Script (GUI với 4 Menu, mỗi menu có 10 chức năng)
+
+-- Tạo GUI chính
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local MenuButtons = {}
+
+-- Thuộc tính cơ bản của GUI
+ScreenGui.Name = "GinIngerto"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0.4, 0, 0.4, 0)
+
+-- Tạo 4 menu (meu)
+for i = 1, 4 do
+    local MenuButton = Instance.new("TextButton")
+    MenuButton.Name = "Menu" .. i
+    MenuButton.Parent = MainFrame
+    MenuButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    MenuButton.Position = UDim2.new((i - 1) * 0.25, 0, 0, 0)
+    MenuButton.Size = UDim2.new(0.25, 0, 0.1, 0)
+    MenuButton.Text = "Menu " .. i
+    MenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MenuButton.Font = Enum.Font.SourceSans
+    MenuButton.TextSize = 18
+    MenuButtons[i] = MenuButton
+end
+
+-- Tạo các chức năng cho từng menu
+local function createFunctionList(menuIndex)
+    local FunctionFrame = Instance.new("Frame")
+    FunctionFrame.Name = "FunctionFrame" .. menuIndex
+    FunctionFrame.Parent = MainFrame
+    FunctionFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    FunctionFrame.Position = UDim2.new(0, 0, 0.1, 0)
+    FunctionFrame.Size = UDim2.new(1, 0, 0.9, 0)
+    FunctionFrame.Visible = false
+
+    for j = 1, 10 do
+        local FunctionButton = Instance.new("TextButton")
+        FunctionButton.Name = "Function" .. j
+        FunctionButton.Parent = FunctionFrame
+        FunctionButton.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+        FunctionButton.Position = UDim2.new(0.1, 0, (j - 1) * 0.1, 0)
+        FunctionButton.Size = UDim2.new(0.8, 0, 0.08, 0)
+        FunctionButton.Text = "Menu " .. menuIndex .. " - Function " .. j
+        FunctionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        FunctionButton.Font = Enum.Font.SourceSans
+        FunctionButton.TextSize = 16
+
+        -- Placeholder cho chức năng
+        FunctionButton.MouseButton1Click:Connect(function()
+            print("Menu " .. menuIndex .. " - Function " .. j .. " activated!")
+        end)
+    end
+
+    return FunctionFrame
+end
+
+-- Tạo danh sách chức năng cho từng menu
+local FunctionFrames = {}
+for i = 1, 4 do
+    FunctionFrames[i] = createFunctionList(i)
+end
+
+-- Xử lý hiển thị menu
+for i, MenuButton in ipairs(MenuButtons) do
+    MenuButton.MouseButton1Click:Connect(function()
+        for j, Frame in ipairs(FunctionFrames) do
+            Frame.Visible = (i == j)
+        end
+    end)
+end
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("RunService")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+
+-- Tạo GUI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "GinIngertoUI"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = true
+
+-- Main Frame
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 400, 0, 450)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -225)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.Visible = false
+
+-- Title
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "Gin Ingerto - Menu"
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextScaled = true
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+-- Tab Menu Buttons
+local categories = {
+	"Player", "Combat", "World", "Fun"
+}
+
+local buttons = {}
+local currentMenu = nil
+
+-- Scroll Container
+local scroll = Instance.new("ScrollingFrame", mainFrame)
+scroll.Position = UDim2.new(0, 0, 0, 50)
+scroll.Size = UDim2.new(1, 0, 1, -50)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 500)
+scroll.ScrollBarThickness = 8
+scroll.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+
+-- Chức năng từng menu
+local MenuData = {
+	Player = {
+		["Speed Boost"] = function() humanoid.WalkSpeed = 100 end,
+		["Jump Boost"] = function() humanoid.JumpPower = 150 end,
+		["God Mode"] = function()
+			humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+				if humanoid.Health < 100 then humanoid.Health = 100 end
+			end)
+		end,
+		["Invisible"] = function() char.Head.Transparency = 1 end,
+		["No Fall Damage"] = function() humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false) end,
+		["Reset Speed"] = function() humanoid.WalkSpeed = 16 end,
+		["Reset Jump"] = function() humanoid.JumpPower = 50 end,
+		["Float Mode"] = function()
+			local bp = Instance.new("BodyPosition", char.HumanoidRootPart)
+			bp.Position = char.HumanoidRootPart.Position + Vector3.new(0, 10, 0)
+			bp.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+		end,
+		["Anti AFK"] = function()
+			player.Idled:Connect(function()
+				VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+			end)
+		end,
+		["Respawn"] = function() player:LoadCharacter() end
+	},
+	Combat = {
+		["Aimbot (Fake)"] = function() print("Aimbot Activated") end,
+		["ESP Highlight"] = function()
+			for _, v in pairs(Players:GetPlayers()) do
+				if v ~= player and v.Character then
+					local h = Instance.new("Highlight", v.Character)
+					h.FillColor = Color3.new(1,0,0)
+				end
+			end
+		end,
+		["No Recoil"] = function() print("No Recoil Enabled") end,
+		["Rapid Fire"] = function() print("Rapid Fire ON") end,
+		["Auto Shoot"] = function() print("Auto Fire Active") end,
+		["Headshot Mode"] = function() print("Headshot Mode Activated") end,
+		["Kill Aura (Fake)"] = function() print("Aura Active") end,
+		["Damage Boost"] = function() print("Damage Boost Enabled") end,
+		["Wallbang (Fake)"] = function() print("Wallbang Mode") end,
+		["Silent Aim"] = function() print("Silent Aim Fake Triggered") end,
+	},
+	World = {
+		["Time Control"] = function() print("Time Changed") end,
+		["Gravity 0"] = function() workspace.Gravity = 0 end,
+		["Gravity Reset"] = function() workspace.Gravity = 196.2 end,
+		["Teleport Up"] = function() char:MoveTo(char.HumanoidRootPart.Position + Vector3.new(0,100,0)) end,
+		["Fly (Fake)"] = function() print("Fly Mode") end,
+		["Spawn Platform"] = function()
+			local p = Instance.new("Part", workspace)
+			p.Anchored = true
+			p.Size = Vector3.new(10,1,10)
+			p.Position = char.HumanoidRootPart.Position - Vector3.new(0,3,0)
+		end,
+		["Delete Map"] = function() for _, v in pairs(workspace:GetChildren()) do if v:IsA("Model") then v:Destroy() end end end,
+		["Weather Control"] = function() print("Weather Changed") end,
+		["Open All Doors"] = function() print("Doors Opened") end,
+		["Spawn NPC (Fake)"] = function() print("NPC spawned") end
+	},
+	Fun = {
+		["Dance Loop"] = function() humanoid:LoadAnimation(Instance.new("Animation", humanoid)).Name = "Dance" end,
+		["Giant Mode"] = function() char:SetPrimaryPartCFrame(char.PrimaryPart.CFrame * CFrame.new(0,5,0)) char.PrimaryPart.Size *= 2 end,
+		["Mini Mode"] = function() char:SetPrimaryPartCFrame(char.PrimaryPart.CFrame * CFrame.new(0,1,0)) char.PrimaryPart.Size /= 2 end,
+		["Spin Head"] = function() char.Head.CFrame = char.Head.CFrame * CFrame.Angles(0, math.rad(360), 0) end,
+		["RGB Skin"] = function()
+			for _, p in ipairs(char:GetDescendants()) do
+				if p:IsA("BasePart") then
+					p.Color = Color3.fromHSV(math.random(), 1, 1)
+				end
+			end
+		end,
+		["Clone Player (Fake)"] = function() print("Cloned") end,
+		["Float Emote"] = function() print("Floating") end,
+		["Spam Sound"] = function() print("Spam SFX") end,
+		["Jump Scare"] = function() print("Boo!") end,
+		["Troll Name"] = function() player.DisplayName = "TROLL_PLAYER" end,
+	}
+}
+
+-- Load chức năng vào UI
+local function loadMenu(menuName)
+	scroll:ClearAllChildren()
+	local y = 0
+	for label, func in pairs(MenuData[menuName]) do
+		local btn = Instance.new("TextButton", scroll)
+		btn.Size = UDim2.new(1, -10, 0, 35)
+		btn.Position = UDim2.new(0, 5, 0, y)
+		btn.Text = label
+		btn.Font = Enum.Font.Gotham
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		btn.TextScaled = true
+		btn.MouseButton1Click:Connect(func)
+		y += 40
+	end
+	scroll.CanvasSize = UDim2.new(0,0,0,y)
+end
+
+-- Nút menu
+for i, name in ipairs(categories) do
+	local tab = Instance.new("TextButton", mainFrame)
+	tab.Size = UDim2.new(0, 100, 0, 30)
+	tab.Position = UDim2.new(0, 5 + (i - 1) * 105, 0, 420)
+	tab.Text = name
+	tab.Font = Enum.Font.GothamBold
+	tab.TextColor3 = Color3.new(1, 1, 1)
+	tab.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	tab.TextScaled = true
+
+	tab.MouseButton1Click:Connect(function()
+		loadMenu(name)
+	end)
+end
+
+-- Toggle menu bằng phím M
+UIS
